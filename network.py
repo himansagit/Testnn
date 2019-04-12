@@ -29,7 +29,6 @@ class Network:
 
 	def forwardpass(self):
 			for layer in self.Layer:
-				#print(type(layer))
 				layer.forward(self.Layer)
 
 	def backwardpass(self,target):
@@ -40,11 +39,7 @@ class Network:
 
 		for layer in reversed(self.Layer):
 			layer.weights -= layer.dl_dw * 0.001
-			#print(layer.biases)
 			layer.biases-=layer.dl_db*.001
-			#print(layer.dl_db)
-			#print(layer.biases)
-			#print(layer.dl_dw)
 
 	def train(self,file):
 		count=0
@@ -58,42 +53,38 @@ class Network:
 			for row in train_data:
 				 #print(row)
 				 row=list(map(float,row))
+
+				 #to make target vector
 				 target=np.zeros((self.OutputNodes,1),dtype='float32')
 				 target[int(row[8])][0]=1
 				 #print(target)
+
+				 #delete target form input
 				 del row[8]
+
 				 row=np.array(row,dtype='float32')
 				 row=np.expand_dims(row,axis=0)
-				 #print(row)
+
+				 #make batches of input
 				 if n==0:
 				 		tag=row
 				 		Target=target
-
 				 		n+=1
 				 elif n<self.batch_size-1:
 				 		Target=np.concatenate((Target,target),axis=1)
 				 		tag=np.concatenate((tag,row),axis=0)
-				 		#print(Target)
 				 		n+=1
 				 elif n==self.batch_size-1:
 				 		Target=np.concatenate((Target,target),axis=1)
-				 		#print(row.shape)
-				 		#print(tag.shape)
 				 		tag=np.concatenate((tag,row),axis=0).transpose()
-				 		#print(tag)
-				 		#print(Target)
+
+				 		#forwardpass and backwardpass
 				 		self.Layer[0].s=tag
 				 		n=0
-				 		#break
-				 		#print(tag)
-				 		# for i in range(1000):
 				 		self.forwardpass()
 				 		self.backwardpass(Target)
 				 		print(l.compute(self.Layer[len(self.Layer)-1].x,Target))
-				 		# print(self.Layer[len(self.Layer)-1].x)
-				 		# print(Target)
 	def Test(self,file):
-		count=0
 		self.file_name=file
 		with open(self.file_name,'r') as csvfileinput:
 			train_data=csv.reader(csvfileinput)
@@ -101,12 +92,18 @@ class Network:
 			n=0
 			for row in train_data:
 				 row=list(map(int,row))
-				 Target=np.zeros((self.OutputNodes,1))
-				 Target[row[0]][0]=1
 
+				 #to make target vector
+				 Target=np.zeros((self.OutputNodes,1))
+				 Target[row[8]][0]=1
+
+				 #to remove target from row
 				 del row[0]
+
 				 row=np.array(row,dtype='float32')
 				 row=np.expand_dims(row,axis=0)
+
+				 #make batches of input and forwardpass
 				 if n==0:
 				 		tag=row
 				 		n+=1
@@ -116,11 +113,6 @@ class Network:
 				 elif n==self.batch_size-1:
 				 		tag=np.concatenate((tag,row),axis=0).transpose()
 				 		self.Layer[0].s=tag
-				 	#change the iteration to loop through file
 				 		self.forwardpass()
-				 		#self.backwardpass(Target)
 				 		print(l.compute(self.Layer[len(self.Layer)-1].x,Target))
-				 		count+=1
-				 			#print(l.compute(self.Layer[len(self.Layer)-1].x,target))
 				 		n=0
-		print(count)

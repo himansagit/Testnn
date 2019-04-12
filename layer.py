@@ -8,6 +8,9 @@ import loss as l
 #activation
 ##loss
 ##learning_rate
+
+
+
 class linear:
 	def __init__(self, index,batch_size, input, output,activation):
 		self.batch_size=batch_size
